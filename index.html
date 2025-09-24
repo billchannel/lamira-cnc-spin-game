@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CVC Spin Game</title>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <main class="app" aria-live="polite">
+      <header class="app__header">
+        <h1>CVC Spin Game</h1>
+        <p class="app__subtitle">Spin the wheel, read the emoji, pick the matching word!</p>
+      </header>
+
+      <section class="app__wheel-section" aria-labelledby="wheel-heading">
+        <h2 id="wheel-heading" class="visually-hidden">Spinning wheel</h2>
+        <div class="wheel-container">
+          <div class="wheel" role="img" aria-label="Word family wheel">
+            <div class="wheel__center" aria-hidden="true">
+              <span class="wheel__center-text">Spin!</span>
+            </div>
+          </div>
+        </div>
+        <button id="spinButton" class="button button--primary" type="button" aria-controls="question">
+          Spin!
+        </button>
+      </section>
+
+      <section id="question" class="app__question" aria-live="polite">
+        <div class="question__emoji" id="questionEmoji" aria-hidden="true">🎡</div>
+        <p class="question__prompt" id="questionPrompt">Click spin to start!</p>
+        <div class="question__choices" role="group" aria-label="Choose the matching word">
+          <button class="choice" data-choice-index="0" type="button"></button>
+          <button class="choice" data-choice-index="1" type="button"></button>
+          <button class="choice" data-choice-index="2" type="button"></button>
+        </div>
+      </section>
+
+      <section class="app__status" aria-describedby="status-heading">
+        <h2 id="status-heading" class="visually-hidden">Status</h2>
+        <div class="status__tokens" id="tokenCounter" aria-label="Token counter"></div>
+        <div class="status__stats">
+          <p id="spinCount" aria-live="polite">Spins: 0</p>
+          <p id="successRate" aria-live="polite">Success rate: 0%</p>
+        </div>
+      </section>
+
+      <output id="feedback" class="app__feedback" aria-live="assertive"></output>
+    </main>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>

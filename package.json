@@ -1,0 +1,22 @@
+{
+  "name": "cvc-spin-game",
+  "version": "1.0.0",
+  "description": "Offline-friendly CVC spin game implemented with vanilla HTML/CSS/JS",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "format": "prettier --check ."
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.2.5"
+  }
+}

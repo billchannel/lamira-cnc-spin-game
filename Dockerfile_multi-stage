@@ -1,0 +1,43 @@
+FROM node:18-alpine AS base
+
+# Install ALL dependencies (including dev dependencies for linting)
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci  # 移除 --only=production
+
+# Build stage - run linting and prepare files
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Run linting (code quality check)
+RUN npm run lint
+
+# Production image - minimal runtime
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 --ingroup appgroup appuser
+
+# Install serve globally in production image
+RUN npm install -g serve
+
+# Copy only necessary files from builder (不需要 node_modules 和 package.json)
+COPY --from=builder /app/*.html ./
+COPY --from=builder /app/*.css ./
+COPY --from=builder /app/*.js ./
+
+# Set correct permissions
+RUN chown -R appuser:appgroup /app
+
+USER appuser
+
+EXPOSE 8080
+
+CMD ["serve", "-s", ".", "-l", "8080"]

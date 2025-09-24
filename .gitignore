@@ -1,0 +1,21 @@
+# Editor and OS-specific files
+.vscode/
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+node_modules/
+
+# Misc
+*.log
+*.bak
+*.tmp
+*.png
+*.bk
+
+.env
+.env.local
+readme_first.md
+deploy_cloudrun_cmds.md
