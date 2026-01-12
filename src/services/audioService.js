@@ -5,6 +5,7 @@
 
 // Detect if we're in a test environment
 const isTestEnvironment = () => {
+  // eslint-disable-next-line no-undef
   return typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID !== undefined;
 };
 
@@ -455,7 +456,9 @@ export class AudioService {
             try {
               osc.stop();
               osc.disconnect();
-            } catch (e) {}
+            } catch (e) {
+              // Ignore errors if oscillator is already stopped or disconnected
+            }
           });
           this.musicOscillators = [];
         }

@@ -40,7 +40,7 @@ open -a Docker
 
 ```bash
 # Set your project ID (replace with your actual project ID)
-export PROJECT_ID="your-project-id"
+export PROJECT_ID="goog-ai-101"
 gcloud config set project $PROJECT_ID
 
 # Enable required APIs
@@ -190,7 +190,7 @@ gcloud run deploy cvc-spin-game \
   --platform managed \
   --region us-central1 \
   --memory 128Mi \
-  --cpu 0.1 \
+  --cpu 1 \
   --max-instances 3 \
   --min-instances 0
 ```

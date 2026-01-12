@@ -12,5 +12,13 @@
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["tests/**/*.js", "*.config.js"],
+      "env": {
+        "node": true
+      }
+    }
+  ]
 }
