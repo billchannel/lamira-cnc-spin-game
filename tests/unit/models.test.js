@@ -25,7 +25,7 @@ describe('Model validation', () => {
 
   test('Rime enforces three CVC words', () => {
     const invalidWords = { ...BASE_RIME, words: [{ text: 'cab', emoji: '🚕' }] };
-    expect(() => new Rime(invalidWords)).toThrow('Rime requires exactly 3 words');
+    expect(() => new Rime(invalidWords)).toThrow('Rime requires at least 3 words');
     const invalidCvc = {
       ...BASE_RIME,
       words: [

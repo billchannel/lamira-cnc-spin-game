@@ -1,5 +1,37 @@
 import { CONFIG } from '../config.js';
 
+const POSITIVE_MESSAGES = [
+  'Fantastic! 🌟',
+  'Awesome job! 🎉',
+  'You\'re a star! ⭐',
+  'Brilliant! 💎',
+  'Perfect! ✨',
+  'Amazing! 🚀',
+  'Incredible! 🔥',
+  'Wonderful! 🌈',
+  'Spectacular! 💫',
+  'Outstanding! 🏆',
+];
+
+const ENCOURAGE_MESSAGES = [
+  'Keep going! You\'ve got this! 💪',
+  'Almost there! Try again! 🎯',
+  'Don\'t give up! You can do it! 💖',
+  'Practice makes perfect! 📚',
+  'You\'re improving! Keep at it! 🌱',
+  'Believe in yourself! ✨',
+  'Every mistake is a lesson! 🎓',
+  'You\'re doing great! 🌟',
+];
+
+const CELEBRATION_MESSAGES = [
+  'Unbelievable! You\'re on fire! 🔥',
+  'LEGENDARY! What a champion! 👑',
+  'PHENOMENAL! You\'re unstoppable! ⚡',
+  'EXTRAORDINARY! Pure talent! 🌟',
+  'MASTERFUL! You\'re a pro! 🏆',
+];
+
 export class FeedbackService {
   constructor({
     feedbackEl,
@@ -12,6 +44,12 @@ export class FeedbackService {
     this.spinCountEl = spinCountEl;
     this.successRateEl = successRateEl;
     this.timeoutId = null;
+    this.messageIndex = Math.floor(Math.random() * 100);
+  }
+
+  getRandomMessage(messages) {
+    this.messageIndex = (this.messageIndex + 1) % messages.length;
+    return messages[this.messageIndex];
   }
 
   showMessage(message, tone = 'neutral') {
@@ -57,8 +95,8 @@ export class FeedbackService {
     });
     const celebrate = gameState.shouldCelebrateSuccess();
     const message = celebrate
-      ? 'Amazing! You are on a roll! 🎉'
-      : 'Great job! You earned a token.';
+      ? this.getRandomMessage(CELEBRATION_MESSAGES)
+      : this.getRandomMessage(POSITIVE_MESSAGES);
     this.showMessage(message, 'positive');
   }
 
@@ -68,7 +106,8 @@ export class FeedbackService {
       spinCount: gameState.spinCount,
       successRate: gameState.successRate,
     });
-    this.showMessage('Keep trying! You can do it!', 'encourage');
+    const message = this.getRandomMessage(ENCOURAGE_MESSAGES);
+    this.showMessage(message, 'encourage');
   }
 
   handleQuestionReady(gameState, emoji) {

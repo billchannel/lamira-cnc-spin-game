@@ -1,4 +1,9 @@
-const CVC_PATTERN = /^[bcdfghjklmnpqrstvwxyz][aeiou][bcdfghjklmnpqrstvwxyz]$/i;
+// Relaxed CVC pattern that allows phonics words with:
+// - CVC (cat)
+// - CCVC with blends (stop, sled)
+// - Double consonant endings (bell, duck, sack)
+// - Digraph endings (bush, fish)
+const CVC_PATTERN = /^[bcdfghjklmnpqrstvwxyz]+[aeiou][bcdfghjklmnpqrstvwxyz]+$/i;
 
 function validateWord(wordEntry) {
   if (!wordEntry || typeof wordEntry.text !== 'string' || typeof wordEntry.emoji !== 'string') {
@@ -12,13 +17,25 @@ function validateWord(wordEntry) {
   }
 }
 
+function validatePattern(pattern) {
+  if (typeof pattern !== 'string') {
+    throw new Error('Rime pattern must be a string.');
+  }
+  // Allow both hyphen-prefixed (like -at) and non-hyphen patterns (like and, end)
+  // Non-hyphen patterns are for words that don't follow the simple CVC+rime pattern
+  if (!pattern.startsWith('-') && !/^[a-z]+$/.test(pattern)) {
+    throw new Error('Rime pattern must be a valid string.');
+  }
+}
+
 export class Rime {
   constructor({ pattern, words, angleStart, angleEnd }) {
-    if (typeof pattern !== 'string' || !pattern.startsWith('-')) {
-      throw new Error('Rime pattern must be a hyphen-prefixed string.');
+    validatePattern(pattern);
+    if (!Array.isArray(words) || words.length < 3) {
+      throw new Error('Rime requires at least 3 words.');
     }
-    if (!Array.isArray(words) || words.length !== 3) {
-      throw new Error('Rime requires exactly 3 words.');
+    if (words.length > 8) {
+      throw new Error('Rime cannot have more than 8 words.');
     }
     words.forEach(validateWord);
     if (typeof angleStart !== 'number' || typeof angleEnd !== 'number') {

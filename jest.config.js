@@ -7,14 +7,12 @@ export default {
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1.js',
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   testMatch: [
     '<rootDir>/tests/**/*.(test|spec).js'
   ],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
-  },
+  transformIgnorePatterns: [
+    'node_modules',
+  ],
 };

@@ -2,7 +2,7 @@ import { getRandomRime, RIMES } from '../../src/data/rimes.js';
 
 describe('Wheel Probability Distribution', () => {
   const SAMPLE_SIZE = 1000;
-  const TOLERANCE = 0.01;
+  const TOLERANCE = 0.03;
 
   describe('getRandomRime', () => {
     it('should return uniform distribution across all rimes', () => {

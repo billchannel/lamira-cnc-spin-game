@@ -5,49 +5,671 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CVC Spin Game</title>
     <link rel="stylesheet" href="styles/main.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#ff6b6b" />
+    <meta name="description" content="Learn to read CVC words with this fun spinning wheel game!" />
   </head>
   <body>
-    <main class="app" aria-live="polite">
+    <main class="app">
       <header class="app__header">
-        <h1>CVC Spin Game</h1>
+        <div class="header__top">
+          <h1>CVC Spin Game</h1>
+          <div class="header-buttons">
+            <button id="multiplayerToggle" class="multiplayer-toggle" type="button" aria-label="Toggle multiplayer" title="2-Player Mode">
+              <span class="multiplayer-icon">👥</span>
+              <span class="multiplayer-text">1P</span>
+            </button>
+            <button id="shopButton" class="shop-button" type="button" aria-label="Open shop" title="Token Shop">
+              🛒
+            </button>
+            <button id="helpButton" class="help-button" type="button" aria-label="Open help" title="How to play">
+              ❓
+            </button>
+            <button id="settingsButton" class="settings-button" type="button" aria-label="Open settings" title="Settings">
+              ⚙️
+            </button>
+          </div>
+        </div>
         <p class="app__subtitle">Spin the wheel, read the emoji, pick the matching word!</p>
+        <p class="visually-hidden">Use arrow keys to navigate choices, number keys 1-3 to select answers, or press Space/Enter to spin.</p>
       </header>
+
+      <!-- Daily Challenge Banner -->
+      <section class="daily-challenge-banner" id="dailyChallengeBanner" aria-labelledby="daily-challenge-title">
+        <div class="daily-challenge-content">
+          <div class="daily-challenge-icon">🎯</div>
+          <div class="daily-challenge-info">
+            <h3 id="daily-challenge-title" class="daily-challenge-title">Daily Challenge</h3>
+            <div class="daily-challenge-progress">
+              <span class="daily-challenge-text">Answer <span id="dailyChallengeProgress">0</span>/<span id="dailyChallengeTarget">5</span> correctly</span>
+              <button id="claimDailyReward" class="claim-reward-button" style="display: none;">
+                Claim Reward! 🎁
+              </button>
+            </div>
+            <div class="daily-streak-info">
+              <span class="streak-fire">🔥</span>
+              <span class="streak-days"><span id="consecutiveDays">0</span> day streak</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Multiplayer Score Display -->
+      <section class="multiplayer-scoreboard" id="multiplayerScoreboard" style="display: none;" aria-labelledby="multiplayer-heading">
+        <h2 id="multiplayer-heading" class="visually-hidden">Multiplayer Scores</h2>
+        <div class="multiplayer-players">
+          <div class="multiplayer-player" id="player1Card" data-player="1">
+            <div class="player-avatar">🔵</div>
+            <div class="player-info">
+              <div class="player-name">Player 1</div>
+              <div class="player-score" id="player1Score">0</div>
+            </div>
+            <div class="player-streak" id="player1Streak">🔥 0</div>
+            <div class="player-turn-indicator" id="player1Turn">Your Turn!</div>
+          </div>
+          <div class="multiplayer-vs">VS</div>
+          <div class="multiplayer-player" id="player2Card" data-player="2">
+            <div class="player-avatar">🔴</div>
+            <div class="player-info">
+              <div class="player-name">Player 2</div>
+              <div class="player-score" id="player2Score">0</div>
+            </div>
+            <div class="player-streak" id="player2Streak">🔥 0</div>
+            <div class="player-turn-indicator" id="player2Turn">Your Turn!</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Difficulty Selector -->
+      <section class="app__difficulty" aria-labelledby="difficulty-heading">
+        <h2 id="difficulty-heading" class="visually-hidden">Difficulty Level</h2>
+        <div class="difficulty-selector" role="group" aria-label="Select difficulty level">
+          <button class="difficulty-button" data-difficulty="easy" aria-pressed="false">
+            <span class="difficulty-icon">🌱</span>
+            <span class="difficulty-label">Easy</span>
+          </button>
+          <button class="difficulty-button" data-difficulty="medium" aria-pressed="true">
+            <span class="difficulty-icon">🎯</span>
+            <span class="difficulty-label">Medium</span>
+          </button>
+          <button class="difficulty-button" data-difficulty="hard" aria-pressed="false">
+            <span class="difficulty-icon">🔥</span>
+            <span class="difficulty-label">Hard</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Power-Ups Section -->
+      <section class="app__powerups" aria-labelledby="powerups-heading">
+        <h2 id="powerups-heading" class="section-title">Power-Ups</h2>
+        <div class="powerups-container">
+          <button id="powerUpHint" class="powerup-button" data-powerup="hintShield" title="Reveals one letter of the answer" aria-label="Use Hint Shield">
+            <span class="powerup-icon">🛡️</span>
+            <span class="powerup-name">Hint</span>
+            <span class="powerup-count" id="hintShieldCount">1</span>
+          </button>
+          <button id="powerUpDouble" class="powerup-button" data-powerup="doubleToken" title="Earn 2x tokens for next correct answer" aria-label="Use Double Token">
+            <span class="powerup-icon">💰</span>
+            <span class="powerup-name">2x Token</span>
+            <span class="powerup-count" id="doubleTokenCount">1</span>
+          </button>
+          <button id="powerUpFreeze" class="powerup-button" data-powerup="streakFreeze" title="Protect your streak once" aria-label="Use Streak Freeze">
+            <span class="powerup-icon">❄️</span>
+            <span class="powerup-name">Streak Save</span>
+            <span class="powerup-count" id="streakFreezeCount">0</span>
+          </button>
+        </div>
+        <div id="activePowerUpIndicator" class="active-powerup-indicator" style="display: none;" aria-live="polite">
+          <span class="active-powerup-icon">⚡</span>
+          <span class="active-powerup-text" id="activePowerUpText">Active Power-Up!</span>
+        </div>
+      </section>
 
       <section class="app__wheel-section" aria-labelledby="wheel-heading">
         <h2 id="wheel-heading" class="visually-hidden">Spinning wheel</h2>
         <div class="wheel-container">
-          <div class="wheel" role="img" aria-label="Word family wheel">
+          <div class="wheel" role="img" aria-live="polite" aria-label="Word family wheel with segments: -at, -og, -ip, -et, -ub, -an, -ig, -op, -en, -ug, -ut, -ot, -un, -am, -ed">
             <div class="wheel__center" aria-hidden="true">
               <span class="wheel__center-text">Spin!</span>
             </div>
           </div>
         </div>
-        <button id="spinButton" class="button button--primary" type="button" aria-controls="question">
+        <button id="spinButton" class="button button--primary" type="button" aria-controls="question" aria-describedby="spin-help">
           Spin!
+          <span id="spin-help" class="visually-hidden">Press Space or Enter to spin the wheel</span>
         </button>
-      </section>
-
-      <section id="question" class="app__question" aria-live="polite">
-        <div class="question__emoji" id="questionEmoji" aria-hidden="true">🎡</div>
-        <p class="question__prompt" id="questionPrompt">Click spin to start!</p>
-        <div class="question__choices" role="group" aria-label="Choose the matching word">
-          <button class="choice" data-choice-index="0" type="button"></button>
-          <button class="choice" data-choice-index="1" type="button"></button>
-          <button class="choice" data-choice-index="2" type="button"></button>
+        <div class="streak-indicator" id="streakIndicator" aria-live="polite">
+          <span class="streak-icon">🔥</span>
+          <span class="streak-count" id="currentStreak">0</span>
+        </div>
+        <div class="level-indicator" id="levelIndicator" aria-live="polite">
+          <span class="level-icon">⭐</span>
+          <div class="level-info">
+            <span class="level-text">Level <span id="currentLevel">1</span></span>
+            <div class="xp-bar">
+              <div class="xp-fill" id="xpFill" style="width: 0%"></div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="app__status" aria-describedby="status-heading">
-        <h2 id="status-heading" class="visually-hidden">Status</h2>
-        <div class="status__tokens" id="tokenCounter" aria-label="Token counter"></div>
+      <section id="question" class="app__question" aria-labelledby="question-heading" aria-live="polite">
+        <h2 id="question-heading" class="visually-hidden">Question</h2>
+        <div id="hintDisplay" class="question__hint" aria-live="polite"></div>
+        <div class="question__emoji" id="questionEmoji" role="img" aria-label="Question emoji">🎡</div>
+        <p class="question__prompt" id="questionPrompt">Click spin to start!</p>
+        <div class="question__choices" role="group" aria-label="Choose the matching word" aria-describedby="choice-help">
+          <p id="choice-help" class="visually-hidden">Use arrow keys to navigate, Enter or Space to select, or press 1, 2, 3 for quick selection</p>
+          <button class="choice" data-choice-index="0" type="button" aria-label="Choice 1, press 1 to select"></button>
+          <button class="choice" data-choice-index="1" type="button" aria-label="Choice 2, press 2 to select"></button>
+          <button class="choice" data-choice-index="2" type="button" aria-label="Choice 3, press 3 to select"></button>
+        </div>
+      </section>
+
+      <!-- Word Family Progress -->
+      <section class="app__progress" aria-labelledby="progress-heading">
+        <h2 id="progress-heading" class="visually-hidden">Your Progress</h2>
+        <div class="progress-container">
+          <div class="word-family-progress" data-rime="-at">
+            <span class="progress-label">-at</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-og">
+            <span class="progress-label">-og</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ip">
+            <span class="progress-label">-ip</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-et">
+            <span class="progress-label">-et</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ub">
+            <span class="progress-label">-ub</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-an">
+            <span class="progress-label">-an</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ig">
+            <span class="progress-label">-ig</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-op">
+            <span class="progress-label">-op</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-en">
+            <span class="progress-label">-en</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ug">
+            <span class="progress-label">-ug</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ut">
+            <span class="progress-label">-ut</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ot">
+            <span class="progress-label">-ot</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-un">
+            <span class="progress-label">-un</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-am">
+            <span class="progress-label">-am</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+          <div class="word-family-progress" data-rime="-ed">
+            <span class="progress-label">-ed</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <span class="progress-count">0/3</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="app__status" aria-labelledby="status-heading">
+        <h2 id="status-heading" class="visually-hidden">Game status</h2>
+        <div class="status__tokens" id="tokenCounter" aria-label="Token counter" role="status" aria-live="polite"></div>
         <div class="status__stats">
           <p id="spinCount" aria-live="polite">Spins: 0</p>
           <p id="successRate" aria-live="polite">Success rate: 0%</p>
+          <button id="soundToggle" class="sound-toggle" type="button" aria-label="Toggle sound" title="Toggle sound">
+            <span class="sound-icon" aria-hidden="true">🔊</span>
+          </button>
         </div>
       </section>
 
-      <output id="feedback" class="app__feedback" aria-live="assertive"></output>
+      <output id="feedback" class="app__feedback" aria-live="assertive" role="status"></output>
     </main>
+
+    <!-- Settings Modal -->
+    <dialog id="settingsModal" class="settings-modal" aria-labelledby="settings-title">
+      <div class="settings-content">
+        <h2 id="settings-title">Settings</h2>
+        <button id="closeSettings" class="close-button" aria-label="Close settings">×</button>
+
+        <div class="settings-section">
+          <h3>Game Speed</h3>
+          <div class="speed-selector" role="group" aria-label="Animation speed">
+            <button class="speed-button" data-speed="slow" aria-pressed="false">Slow</button>
+            <button class="speed-button" data-speed="normal" aria-pressed="true">Normal</button>
+            <button class="speed-button" data-speed="fast" aria-pressed="false">Fast</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Sound Volume</h3>
+          <label for="volumeSlider">
+            <span class="volume-label">Volume</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="50" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+            <span class="volume-value">50%</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Sound Theme</h3>
+          <div class="theme-selector" role="group" aria-label="Select sound theme">
+            <button class="theme-button" data-theme="modern" aria-pressed="true">
+              <span class="theme-icon">🎵</span>
+              <span class="theme-label">Modern</span>
+              <span class="theme-preview" aria-label="Preview Modern theme">▶</span>
+            </button>
+            <button class="theme-button" data-theme="retro" aria-pressed="false">
+              <span class="theme-icon">👾</span>
+              <span class="theme-label">Retro</span>
+              <span class="theme-preview" aria-label="Preview Retro theme">▶</span>
+            </button>
+            <button class="theme-button" data-theme="fun" aria-pressed="false">
+              <span class="theme-icon">🎪</span>
+              <span class="theme-label">Fun</span>
+              <span class="theme-preview" aria-label="Preview Fun theme">▶</span>
+            </button>
+            <button class="theme-button" data-theme="orchestral" aria-pressed="false">
+              <span class="theme-icon">🎻</span>
+              <span class="theme-label">Orchestral</span>
+              <span class="theme-preview" aria-label="Preview Orchestral theme">▶</span>
+            </button>
+            <button class="theme-button" data-theme="nature" aria-pressed="false">
+              <span class="theme-icon">🍃</span>
+              <span class="theme-label">Nature</span>
+              <span class="theme-preview" aria-label="Preview Nature theme">▶</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Background Music</h3>
+          <button id="musicToggle" class="music-toggle" type="button" aria-pressed="false">
+            <span class="music-icon">🎵</span>
+            <span class="music-label">Enable Ambient Music</span>
+          </button>
+          <label for="musicVolumeSlider" class="music-volume-label">
+            <span class="volume-label">Music Volume</span>
+            <input type="range" id="musicVolumeSlider" min="0" max="100" value="30" aria-valuemin="0" aria-valuemax="100" aria-valuenow="30">
+            <span class="volume-value" id="musicVolumeValue">30%</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Word Pronunciation</h3>
+          <button id="pronunciationToggle" class="pronunciation-toggle" type="button" aria-pressed="false">
+            <span class="pronunciation-icon">🔊</span>
+            <span class="pronunciation-label">Speak Words Aloud</span>
+          </button>
+          <label for="pronunciationRateSlider" class="pronunciation-setting-label">
+            <span class="setting-label">Speaking Speed</span>
+            <input type="range" id="pronunciationRateSlider" min="50" max="150" value="80" aria-valuemin="50" aria-valuemax="150" aria-valuenow="80">
+            <span class="volume-value" id="pronunciationRateValue">80%</span>
+          </label>
+          <label for="pronunciationPitchSlider" class="pronunciation-setting-label">
+            <span class="setting-label">Voice Pitch</span>
+            <input type="range" id="pronunciationPitchSlider" min="50" max="200" value="120" aria-valuemin="50" aria-valuemax="200" aria-valuenow="120">
+            <span class="volume-value" id="pronunciationPitchValue">120%</span>
+          </label>
+          <select id="voiceSelector" class="voice-selector" aria-label="Select voice for pronunciation">
+            <option value="">Default Voice</option>
+          </select>
+          <button id="testPronunciation" class="test-pronunciation-button" type="button">
+            🔊 Test Pronunciation
+          </button>
+        </div>
+
+        <div class="settings-section">
+          <h3>Accessibility</h3>
+          <button id="highContrastToggle" class="contrast-toggle" type="button" aria-pressed="false">
+            <span class="contrast-icon">👁️</span>
+            <span class="contrast-label">High Contrast Mode</span>
+          </button>
+        </div>
+
+        <div class="settings-section">
+          <h3>Statistics</h3>
+          <button id="viewStatsButton" class="stats-view-button">View Detailed Statistics</button>
+        </div>
+
+        <div class="settings-section">
+          <button id="resetProgress" class="reset-button">Reset Progress</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Help Modal -->
+    <dialog id="helpModal" class="help-modal" aria-labelledby="help-title">
+      <div class="help-content">
+        <h2 id="help-title">How to Play</h2>
+        <button id="closeHelp" class="close-button" aria-label="Close help">×</button>
+
+        <div class="help-section">
+          <h3>🎯 Objective</h3>
+          <p>Learn to read CVC (Consonant-Vowel-Consonant) words by matching emojis to words!</p>
+        </div>
+
+        <div class="help-section">
+          <h3>🎮 How to Play</h3>
+          <ol>
+            <li>Click the <strong>Spin!</strong> button to spin the wheel</li>
+            <li>Look at the <strong>emoji</strong> that appears</li>
+            <li>Choose the <strong>word</strong> that matches the emoji</li>
+            <li>Earn <strong>tokens</strong> for correct answers!</li>
+          </ol>
+        </div>
+
+        <div class="help-section">
+          <h3>🎚️ Difficulty Levels</h3>
+          <ul>
+            <li><strong>🌱 Easy:</strong> Shows 2 letters as hints, emoji visible</li>
+            <li><strong>🎯 Medium:</strong> Shows 1 letter as hint, emoji visible</li>
+            <li><strong>🔥 Hard:</strong> No hints, emoji hidden</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h3>🏆 Achievements</h3>
+          <p>Unlock achievements by:</p>
+          <ul>
+            <li>Building streaks of correct answers</li>
+            <li>Earning tokens</li>
+            <li>Mastering word families (3 correct each)</li>
+            <li>Spinning the wheel many times</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h3>⌨️ Keyboard Shortcuts</h3>
+          <ul>
+            <li><strong>Space/Enter:</strong> Spin the wheel</li>
+            <li><strong>1, 2, 3:</strong> Quick select answers</li>
+            <li><strong>Arrow keys:</strong> Navigate between choices</li>
+          </ul>
+        </div>
+
+        <div class="help-section">
+          <h3>💡 Tips</h3>
+          <ul>
+            <li>Sound effects can be toggled in settings</li>
+            <li>Game speed can be adjusted (Slow/Normal/Fast)</li>
+            <li>Progress is saved automatically</li>
+            <li>Try High Contrast Mode for better visibility</li>
+          </ul>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Statistics Modal -->
+    <dialog id="statsModal" class="stats-modal" aria-labelledby="stats-title">
+      <div class="stats-content">
+        <h2 id="stats-title">Your Statistics</h2>
+        <button id="closeStats" class="close-button" aria-label="Close statistics">×</button>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🎡</div>
+            <div class="stat-value" id="statTotalSpins">0</div>
+            <div class="stat-label">Total Spins</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="statCorrectAnswers">0</div>
+            <div class="stat-label">Correct Answers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value" id="statSuccessRate">0%</div>
+            <div class="stat-label">Success Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value" id="statBestStreak">0</div>
+            <div class="stat-label">Best Streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🪙</div>
+            <div class="stat-value" id="statTotalTokens">0</div>
+            <div class="stat-label">Total Tokens</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value" id="statAchievements">0/22</div>
+            <div class="stat-label">Achievements</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="statLevel">1</div>
+            <div class="stat-label">Level</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💎</div>
+            <div class="stat-value" id="statTotalXP">0</div>
+            <div class="stat-label">Total XP</div>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <h3>Word Family Mastery</h3>
+          <div class="mastery-grid" id="masteryGrid">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <h3>Performance by Difficulty</h3>
+          <div class="difficulty-stats" id="difficultyStats">
+            <div class="difficulty-stat">
+              <span class="difficulty-name">🌱 Easy</span>
+              <div class="difficulty-bar">
+                <div class="difficulty-fill" id="easyProgress" style="width: 0%"></div>
+              </div>
+              <span class="difficulty-percent" id="easyPercent">0%</span>
+            </div>
+            <div class="difficulty-stat">
+              <span class="difficulty-name">🎯 Medium</span>
+              <div class="difficulty-bar">
+                <div class="difficulty-fill" id="mediumProgress" style="width: 0%"></div>
+              </div>
+              <span class="difficulty-percent" id="mediumPercent">0%</span>
+            </div>
+            <div class="difficulty-stat">
+              <span class="difficulty-name">🔥 Hard</span>
+              <div class="difficulty-bar">
+                <div class="difficulty-fill" id="hardProgress" style="width: 0%"></div>
+              </div>
+              <span class="difficulty-percent" id="hardPercent">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Shop Modal -->
+    <dialog id="shopModal" class="shop-modal" aria-labelledby="shop-title">
+      <div class="shop-content">
+        <h2 id="shop-title">Token Shop 🛒</h2>
+        <button id="closeShop" class="close-button" aria-label="Close shop">×</button>
+
+        <div class="shop-token-display">
+          <span class="shop-token-icon">🪙</span>
+          <span class="shop-token-count" id="shopTokenCount">0</span>
+          <span class="shop-token-label">tokens available</span>
+        </div>
+
+        <div class="shop-sections">
+          <div class="shop-section">
+            <h3>Power-Ups</h3>
+            <div class="shop-items">
+              <div class="shop-item" data-item="hintShield" data-price="10">
+                <div class="shop-item-icon">🛡️</div>
+                <div class="shop-item-info">
+                  <div class="shop-item-name">Hint Shield</div>
+                  <div class="shop-item-desc">Reveals first letter</div>
+                </div>
+                <div class="shop-item-price">🪙 10</div>
+                <button class="shop-item-buy" data-item="hintShield">Buy</button>
+              </div>
+              <div class="shop-item" data-item="doubleToken" data-price="15">
+                <div class="shop-item-icon">💰</div>
+                <div class="shop-item-info">
+                  <div class="shop-item-name">2x Token</div>
+                  <div class="shop-item-desc">Double rewards</div>
+                </div>
+                <div class="shop-item-price">🪙 15</div>
+                <button class="shop-item-buy" data-item="doubleToken">Buy</button>
+              </div>
+              <div class="shop-item" data-item="streakFreeze" data-price="25">
+                <div class="shop-item-icon">❄️</div>
+                <div class="shop-item-info">
+                  <div class="shop-item-name">Streak Save</div>
+                  <div class="shop-item-desc">Protect streak</div>
+                </div>
+                <div class="shop-item-price">🪙 25</div>
+                <button class="shop-item-buy" data-item="streakFreeze">Buy</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="shop-section">
+            <h3>Cosmetics</h3>
+            <div class="shop-items">
+              <div class="shop-item" data-item="wheelSkinSpace" data-price="50">
+                <div class="shop-item-icon">🚀</div>
+                <div class="shop-item-info">
+                  <div class="shop-item-name">Space Wheel</div>
+                  <div class="shop-item-desc">Cosmetic skin</div>
+                </div>
+                <div class="shop-item-price">🪙 50</div>
+                <button class="shop-item-buy" data-item="wheelSkinSpace">Buy</button>
+              </div>
+              <div class="shop-item" data-item="wheelSkinOcean" data-price="50">
+                <div class="shop-item-icon">🌊</div>
+                <div class="shop-item-info">
+                  <div class="shop-item-name">Ocean Wheel</div>
+                  <div class="shop-item-desc">Cosmetic skin</div>
+                </div>
+                <div class="shop-item-price">🪙 50</div>
+                <button class="shop-item-buy" data-item="wheelSkinOcean">Buy</button>
+              </div>
+              <div class="shop-item" data-item="wheelSkinRainbow" data-price="100">
+                <div class="shop-item-icon">🌈</div>
+                <div class="shop-item-info">
+                  <div class="shop-item-name">Rainbow Wheel</div>
+                  <div class="shop-item-desc">Premium skin</div>
+                </div>
+                <div class="shop-item-price">🪙 100</div>
+                <button class="shop-item-buy" data-item="wheelSkinRainbow">Buy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Tutorial Modal -->
+    <dialog id="tutorialModal" class="tutorial-modal" aria-labelledby="tutorial-title">
+      <div class="tutorial-content">
+        <div class="tutorial-header">
+          <h2 id="tutorial-title" class="tutorial-title">Welcome!</h2>
+          <div class="tutorial-progress">
+            <span id="tutorialStepIndicator">1/9</span>
+          </div>
+        </div>
+
+        <div class="tutorial-body">
+          <div class="tutorial-icon" id="tutorialIcon">🎡</div>
+          <h3 class="tutorial-step-title" id="tutorialStepTitle">Welcome to CVC Spin!</h3>
+          <p class="tutorial-step-text" id="tutorialStepText">Learn to read word families by spinning the wheel and matching words!</p>
+        </div>
+
+        <div class="tutorial-footer">
+          <button id="tutorialSkip" class="tutorial-skip-button">Skip Tutorial</button>
+          <div class="tutorial-navigation">
+            <button id="tutorialPrev" class="tutorial-nav-button" disabled>Previous</button>
+            <button id="tutorialNext" class="tutorial-nav-button tutorial-next-button">Next</button>
+          </div>
+        </div>
+
+        <div class="tutorial-dots" id="tutorialDots">
+          <span class="tutorial-dot active" data-step="0"></span>
+          <span class="tutorial-dot" data-step="1"></span>
+          <span class="tutorial-dot" data-step="2"></span>
+          <span class="tutorial-dot" data-step="3"></span>
+          <span class="tutorial-dot" data-step="4"></span>
+          <span class="tutorial-dot" data-step="5"></span>
+          <span class="tutorial-dot" data-step="6"></span>
+          <span class="tutorial-dot" data-step="7"></span>
+          <span class="tutorial-dot" data-step="8"></span>
+        </div>
+      </div>
+    </dialog>
 
     <script type="module" src="src/main.js"></script>
   </body>

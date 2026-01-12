@@ -9,7 +9,8 @@
       "Bash(npm test:*)",
       "Bash(npx jest:*)",
       "Bash(bash:*)",
-      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)"
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

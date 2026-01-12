@@ -1,0 +1,23 @@
+{
+  "name": "CVC Spin Game",
+  "short_name": "CVC Spin",
+  "description": "Learn to read CVC words with this fun spinning wheel game!",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#fff5f7",
+  "theme_color": "#ff6b6b",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23ff6b6b'/><text y='70' font-size='50' text-anchor='middle'>🎡</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23ff6b6b'/><text y='70' font-size='50' text-anchor='middle'>🎡</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["education", "games"],
+  "lang": "en"
+}

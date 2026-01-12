@@ -1,13 +1,9 @@
 import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
 import path from 'path';
 import { CONFIG } from '../../src/config.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 function loadHtmlFixture() {
-  const htmlPath = path.resolve(__dirname, '../../index.html');
+  const htmlPath = path.join(process.cwd(), 'index.html');
   const rawHtml = readFileSync(htmlPath, 'utf-8');
   return rawHtml.replace(/<script[^>]*>.*?<\/script>/gs, '');
 }
@@ -15,13 +11,9 @@ function loadHtmlFixture() {
 describe('CVC Spin Game smoke test', () => {
   beforeEach(() => {
     jest.resetModules();
-    jest.useFakeTimers();
+    jest.useRealTimers();
     localStorage.clear();
     document.documentElement.innerHTML = loadHtmlFixture();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
   });
 
   it('spins the wheel and surfaces a question with choices', async () => {
@@ -31,12 +23,13 @@ describe('CVC Spin Game smoke test', () => {
     expect(spinButton).toBeTruthy();
 
     spinButton.click();
-    jest.advanceTimersByTime(CONFIG.ANIMATION_DURATION + 20);
+    // Wait for animation (2000ms) + highlight (800ms) + question display delay (1000ms) + buffer
+    await new Promise(resolve => setTimeout(resolve, CONFIG.ANIMATION_DURATION + CONFIG.HIGHLIGHT_DURATION + CONFIG.QUESTION_DISPLAY_DELAY + 500));
 
     const prompt = document.getElementById('questionPrompt').textContent;
     const choices = Array.from(document.querySelectorAll('.choice')).map((btn) => btn.textContent);
 
     expect(prompt).toMatch(/What is this\?/);
     expect(choices.filter(Boolean).length).toBe(3);
-  });
+  }, 15000); // Increase timeout to 15 seconds
 });
